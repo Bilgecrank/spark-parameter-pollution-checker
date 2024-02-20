@@ -9,7 +9,6 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 repositories {
@@ -23,16 +22,13 @@ dependencies {
 
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'com.sparkjava:spark-core:2.3'
+
 }
 
 application {
     // Define the main class for the application.
     mainClass = 'ParameterPollution.App'
-}
-
-javafx {
-    version = "21.0.1"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 tasks.named('test') {
