@@ -3,18 +3,49 @@
  */
 package ParameterPollution;
 
+import java.util.HashSet;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class App extends Application{
     
+    private StackPane pneBase = new StackPane();
+    private VBox boxButtons = new VBox();
     private GridPane pneGrid = new GridPane();
+    
+    private Label lblDesiredLink = new Label("Desired Link");
+    private Label lblMaliciousLink = new Label("Malicious Link");
+    private Label lblResult = new Label("Result");
+    
+    private TextField tfDesiredLink = new TextField();
+    private TextField tfMaliciousLink = new TextField();
+    
+    private Button btnEvaluate = new Button("Evaluate");
     
     @Override
     public void start(Stage stage) throws Exception {
-        Scene scene = new Scene(pneGrid, 500, 300);
+        pneGrid.setAlignment(Pos.CENTER);
+        pneGrid.setHgap(10);
+        pneGrid.setVgap(10);
+        pneGrid.setPadding(new Insets(10, 10, 10, 10));
+        
+        pneGrid.add(lblDesiredLink, 0, 0);
+        pneGrid.add(tfDesiredLink, 1, 0);
+        pneGrid.add(lblMaliciousLink, 0, 1);
+        pneGrid.add(tfMaliciousLink, 1, 1);
+        pneGrid.add(btnEvaluate, 0, 2);
+        pneGrid.add(lblResult, 1, 2);
+        pneBase.getChildren().add(pneGrid);
+        Scene scene = new Scene(pneBase, 400, 300);
         stage.setScene(scene);
         stage.setTitle("HTTP Parameter Pollute Checker");
         stage.show();
