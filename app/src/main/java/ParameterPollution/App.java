@@ -38,9 +38,17 @@ public class App {
         getInstance = getInstance.concat("</ul>");
         return getInstance;
     }
-
+    
+    /**
+     * Builds a form to input data.
+     * 
+     * @param destination Destination the form should POST to.
+     * @param params A LinkedHashSet of parameters passed/to be passed in the request.
+     * @param values Default values that should match up with the number of parameters.
+     * @return A form in String format.
+     */
     private static String formBuilder(String destination, LinkedHashSet<String> params, String[] values) {
-        System.out.println(params);
+        
         String formBody = "<form action=\"" + destination + "\" method=\"post\">";
         int counter = 0;
         for (String param : params) {
@@ -61,16 +69,7 @@ public class App {
         // GOTO: http://localhost:4567
         //GET TESTING
         ArrayList<String> instances = new ArrayList<>();
-        LinkedHashSet<String> defaultParams = new LinkedHashSet<>(Set.of( "password", "username"));
-        /*
-        String formBody = "<form action=\"/postTester\" method=\"post\">"
-                + "<label>Username</label><br>"
-                + "<input type=\"text\" name=\"username\" placeholder=\"Required\"><br>"
-                + "<label>Password</label><br>"
-                + "<input type=\"password\" name=\"password\" placeholder=\"Required\"><br>"
-                + "<input type=\"submit\" value=\"Login\">"
-                + "</form>";
-         */
+        LinkedHashSet<String> defaultParams = new LinkedHashSet<>(Set.of( "username","password"));
 
         String returnHome = "<br><a href=\"/\">Return HOME</a></body></html>";
 
