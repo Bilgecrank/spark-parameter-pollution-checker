@@ -4,10 +4,40 @@
 package ParameterPollution;
 
 import java.util.ArrayList;
+import java.util.Set;
+import spark.Request;
 import static spark.Spark.*;
 
 public class App {
 
+    /**
+     * Retrieves params passed in a request and then returns them in an HTML
+     * string to be displayed.
+     * 
+     * @param request The request being passed
+     * @param type The string representation of the type of request either
+     * GET or POST
+     * @return The params in STRING form.
+     */
+    private static String getParamsPassed(Request request, String type) {
+        Set<String> queryParams = request.queryParams();
+        String getInstance = "<h2>" + type + " Instance</h2><ul>";
+        String paramsInstance = "";
+            for (String param : queryParams) {
+                if (request.queryParams(param) != null) {
+                    paramsInstance = paramsInstance.concat("<li>" + param + ": " + 
+                        request.queryParams(param) + "</li>");
+                }
+            }
+            if (paramsInstance.equals("")) {
+                return paramsInstance;
+            } else {
+                getInstance = getInstance.concat(paramsInstance);
+            }
+            getInstance = getInstance.concat("</ul>");
+        return getInstance;
+    }
+    
     public static void main(String[] args) {
 
         // GOTO: http://localhost:4567
@@ -21,6 +51,8 @@ public class App {
                 + "<input type=\"submit\" value=\"Login\">"
                 + "</form>";
 
+        String returnHome = "<br><a href=\"/\">Return HOME</a></body></html>";
+
         get("/", (request, response) -> "<html><body><h1>HTTP Paramater Pollution GET Testing</h1>"
                 + "<ul>"
                 + "<li><a href=\"/getTester\">GET Tester</a></li>"
@@ -29,47 +61,29 @@ public class App {
                 + "</body></html>");
 
         get("/getTester", (request, response) -> {
-            String username = request.queryParams("username");
-            String password = request.queryParams("password");
-            String getInstance
-                    = "<h2>GET Instance</h2>"
-                    + "<ul>"
-                    + "<li>Username: " + username + "</li>"
-                    + "<li>Password: " + password + "</li>"
-                    + "</ul>";
-            if (username != null && password != null) {
-                instances.add(getInstance);
-            }
+            instances.add(getParamsPassed(request, "GET"));
             String bulkReturn = "";
             for (String instance : instances) {
                 bulkReturn = bulkReturn + instance;
             }
             if (bulkReturn.equals("")) {
                 bulkReturn = "To test get parameters append ?username=Test&"
-                        + "password=TestPass to the address striing and hit enter.";
+                        + "password=TestPass to the address string and hit enter.<br>";
             }
             return "<html><body><h1>HTTP Paramater Pollution GET Testing</h1>"
                     + bulkReturn
-                    + "<br><a href=\"/\">Return HOME</a></body></html>";
+                    + returnHome;
         });
 
         //POST TESTING
         get("/postTester", (request, response)
                 -> "<html><body><h1>HTTP Paramater Pollution POST Testing</h1>"
                 + formBody
-                + "<br><a href=\"/\">Return HOME</a></body></html>"
+                + returnHome
         );
 
         post("/postTester", (request, response) -> {
-            String username = request.queryParams("username");
-            String password = request.queryParams("password");
-            String getInstance
-                    = "<h2>POST Instance</h2>"
-                    + "<ul>"
-                    + "<li>Username: " + username + "</li>"
-                    + "<li>Password: " + password + "</li>"
-                    + "</ul>";
-            instances.add(getInstance);
+            instances.add(getParamsPassed(request, "POST"));
             String bulkReturn = "";
             for (String instance : instances) {
                 bulkReturn = bulkReturn + instance;
@@ -77,7 +91,7 @@ public class App {
             return "<html><body><h1>HTTP Paramater Pollution POST Testing</h1>"
                     + formBody
                     + bulkReturn
-                    + "<br><a href=\"/\">Return HOME</a></body></html>";
+                    + returnHome;
         });
     }
 
