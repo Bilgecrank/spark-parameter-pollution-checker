@@ -4,6 +4,7 @@
 package ParameterPollution;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import spark.Request;
 import static spark.Spark.*;
@@ -13,43 +14,63 @@ public class App {
     /**
      * Retrieves params passed in a request and then returns them in an HTML
      * string to be displayed.
-     * 
+     *
      * @param request The request being passed
-     * @param type The string representation of the type of request either
-     * GET or POST
+     * @param type The string representation of the type of request either GET
+     * or POST
      * @return The params in STRING form.
      */
     private static String getParamsPassed(Request request, String type) {
         Set<String> queryParams = request.queryParams();
         String getInstance = "<h2>" + type + " Instance</h2><ul>";
         String paramsInstance = "";
-            for (String param : queryParams) {
-                if (request.queryParams(param) != null) {
-                    paramsInstance = paramsInstance.concat("<li>" + param + ": " + 
-                        request.queryParams(param) + "</li>");
-                }
+        for (String param : queryParams) {
+            if (request.queryParams(param) != null) {
+                paramsInstance = paramsInstance.concat("<li>" + param + ": "
+                        + request.queryParams(param) + "</li>");
             }
-            if (paramsInstance.equals("")) {
-                return paramsInstance;
-            } else {
-                getInstance = getInstance.concat(paramsInstance);
-            }
-            getInstance = getInstance.concat("</ul>");
+        }
+        if (paramsInstance.equals("")) {
+            return paramsInstance;
+        } else {
+            getInstance = getInstance.concat(paramsInstance);
+        }
+        getInstance = getInstance.concat("</ul>");
         return getInstance;
     }
-    
+
+    private static String formBuilder(String destination, LinkedHashSet<String> params, String[] values) {
+        System.out.println(params);
+        String formBody = "<form action=\"" + destination + "\" method=\"post\">";
+        int counter = 0;
+        for (String param : params) {
+            if (values[counter] == null) {
+                values[counter] = "";
+            }
+            formBody = formBody.concat("<label>" + param + "</label><br>"
+                    + "<input type=\"text\" name=\"" + param + "\" value=\"" + values[counter] + "\"><br>");
+            counter++;
+        }
+
+        formBody = formBody.concat("<input type=\"submit\" value=\"Submit\"></form>");
+        return formBody;
+    }
+
     public static void main(String[] args) {
 
         // GOTO: http://localhost:4567
         //GET TESTING
         ArrayList<String> instances = new ArrayList<>();
+        LinkedHashSet<String> defaultParams = new LinkedHashSet<>(Set.of( "password", "username"));
+        /*
         String formBody = "<form action=\"/postTester\" method=\"post\">"
                 + "<label>Username</label><br>"
-                + "<input class=\"registration\" type=\"text\" name=\"username\" placeholder=\"Required\"><br>"
+                + "<input type=\"text\" name=\"username\" placeholder=\"Required\"><br>"
                 + "<label>Password</label><br>"
-                + "<input class=\"registration\" type=\"password\" name=\"password\" placeholder=\"Required\"><br>"
+                + "<input type=\"password\" name=\"password\" placeholder=\"Required\"><br>"
                 + "<input type=\"submit\" value=\"Login\">"
                 + "</form>";
+         */
 
         String returnHome = "<br><a href=\"/\">Return HOME</a></body></html>";
 
@@ -78,9 +99,26 @@ public class App {
         //POST TESTING
         get("/postTester", (request, response)
                 -> "<html><body><h1>HTTP Paramater Pollution POST Testing</h1>"
-                + formBody
+                + formBuilder("/postCatcher", defaultParams, new String[2])
                 + returnHome
         );
+
+        post("/postCatcher", (request, response) -> {
+            LinkedHashSet<String> requestParams = new LinkedHashSet<>();
+            requestParams.addAll(request.queryParams());
+            
+            String[] requestValues = new String[requestParams.size() + 1];
+            int counter = 0;
+            for (String param : requestParams) {
+                requestValues[counter] = request.queryParams(param);
+                counter++;
+            }
+            
+            requestParams.add("attack-field");
+            return "<html><body><h1>HTTP Paramater Pollution POST Testing - Proxy Simulation</h1>"
+                    + formBuilder("/postTester", requestParams, requestValues)
+                    + returnHome;
+        });
 
         post("/postTester", (request, response) -> {
             instances.add(getParamsPassed(request, "POST"));
@@ -89,7 +127,7 @@ public class App {
                 bulkReturn = bulkReturn + instance;
             }
             return "<html><body><h1>HTTP Paramater Pollution POST Testing</h1>"
-                    + formBody
+                    + formBuilder("/postCatcher", defaultParams, new String[2])
                     + bulkReturn
                     + returnHome;
         });
